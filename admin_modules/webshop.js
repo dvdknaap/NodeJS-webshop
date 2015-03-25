@@ -2,7 +2,6 @@ var webshop = function webshop() {
 	var format          = require('util').format;
 	var download        = require('./download');
 	var queue           = require('./queue');
-	var parseCsv        = require('csv-parse');
 	var xmlreader       = require('xmlreader');
 	var downloaded      = {};
 	var fs              = require('fs');

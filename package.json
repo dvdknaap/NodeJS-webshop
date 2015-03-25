@@ -1,26 +1,28 @@
 {
-  "name": "mijsexshop.nl",
-  "version": "0.0.1",
-  "description": "Sexshop",
-  "main": "webShop.js",
+  "name": "mijnsexshop.nl",
+  "version": "0.0.5",
+  "description": "sexshop in nodejs",
+  "main": "webshopCronjob.js",
   "dependencies": {
-    "angular": "~1.2.19",
-    "busboy": "~0.2.7",
-    "forms-angular": "~0.4.0-alpha.1",
+    "colors": "~1.0.3",
+    "commander": "~2.7.1",
     "fs.extra": "~1.2.1",
-    "knex": "~0.6.20",
-    "mysql": "~2.3.2",
-    "requirejs": "~2.1.14",
-    "validator": "~3.16.0",
-    "xml": "~0.0.12"
+    "mongodb": "~2.0.24",
+    "validator": "~3.16.1",
+    "xml": "~0.0.12",
+    "xmlreader": "~0.2.3"
   },
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [
-    "sexshop"
-  ],
-  "author": "Danny van der Knaap",
-  "license": "BSD-2-Clause"
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/DutchProgrammer/NodeJS-webshop.git"
+  },
+  "author": "Danny van der Knaap <dutchprogrammer@gmail.com>",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/DutchProgrammer/NodeJS-webshop/issues"
+  }
 }
