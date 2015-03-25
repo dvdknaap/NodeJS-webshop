@@ -1,1 +1,3 @@
 img/product/*
+bower_components/*
+node_modules/*
