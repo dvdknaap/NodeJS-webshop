@@ -15,15 +15,22 @@ var download = function download() {
 		var totalDownload = 0;
 		var file          = fs.createWriteStream(localFile);
 		
+
+		request(remoteFile).on('end', function() {
+	   	emit('downloaded', { localFile: localFile, remoteFile: remoteFile, totalSize: totalDownload });
+	  }).pipe(file);
+
+		return ;
+
 		var downloadProtocol = http;
 		if (remoteFile.substr(0, 5) === 'https') {
 			downloadProtocol = https;
 		}
 
 		downloadProtocol.get(remoteFile, function (response) {
-	        if (encoding) {
-	            response.setEncoding(encoding);
-	        }
+      if (encoding) {
+      	response.setEncoding(encoding);
+      }
 
 			var totalLength    = parseInt(response.headers['content-length'], 10);
 			var downloaded     = 0;
@@ -31,36 +38,36 @@ var download = function download() {
 
 			totalDownload  = totalLength / 1048576; //1048576 - bytes in  1Megabyte
 
-			response.pipe(file);
-		    response.on('data', function(chunk) {
+	    response.on('data', function(chunk) {
 
-		        if (response.statusCode !== 200) {
-		        	emit('error', { statusCode: response.statusCode, response: chunk.toString() });
-		        	return;
-		        }
+	        if (response.statusCode !== 200) {
+	        	emit('error', { statusCode: response.statusCode, response: chunk.toString() });
+	        	return;
+	        }
 
-	            downloaded += chunk.length;
-		        file.write(chunk);
+          downloaded += chunk.length;
+	        file.write(chunk);
 
-		        var percentage = (100.0 * downloaded / totalLength).toFixed(2);
+	        var percentage = (100.0 * downloaded / totalLength).toFixed(2);
 
-		        if (lastPercentage !== percentage) {
-		        	var downlaoded = (downloaded / 1048576).toFixed(2);
+	        if (lastPercentage !== percentage) {
+	        	var downlaoded = (downloaded / 1048576).toFixed(2);
 
-		        	emit('data', { percentage: percentage, downlaoded: downlaoded, totalSize: totalDownload });
+	        	emit('data', { percentage: percentage, downlaoded: downlaoded, totalSize: totalDownload });
 
-			    	lastPercentage = percentage;
-			    }
-		    });
+		    	lastPercentage = percentage;
+		    }
+	    });
 
 		    response.on('end', function() {
-		        file.end();
+	        file.end();
 
-		        if (response.statusCode === 200) {
-		        	emit('downloaded', { localFile: localFile, remoteFile: remoteFile, totalSize: totalDownload });
-		        } else {
-		        	fs.unlink(localFile);
-		        }
+	        if (response.statusCode === 200) {
+	        	emit('downloaded', { localFile: localFile, remoteFile: remoteFile, totalSize: totalDownload });
+	        } else {
+	        	fs.unlink(localFile);
+	        }
+
 		    });
 
 			response.on('error', function(e) {

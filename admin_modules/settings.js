@@ -21,6 +21,8 @@ var webshopSettings = function () {
 	};
 
 	this.databaseSettings = {
+		'url' : 'mongodb://127.0.0.1:27017/mijnSexShop'
+		/*
 	  client: 'mysql',
 	  connection: {
 	    host     : '127.0.0.1',
@@ -28,7 +30,7 @@ var webshopSettings = function () {
 	    password : 'password',
 	    database : 'mijnsexshop'
 	  }
-	  //,debug:true
+	  //,debug:true*/
 	};
 
 };
