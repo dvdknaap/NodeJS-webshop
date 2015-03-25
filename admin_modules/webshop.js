@@ -35,12 +35,10 @@ var webshop = function webshop() {
     var collection = db.collection('products');
 
 		collection.findOne({
-			/*
 			mainCatId: data.mainCatId,
 			subCatId: data.subCatId,
 			sku: data.sku,
 			subSku: data.subSku,
-			*/
 			barcode: data.barcode
 		}, function(error, result) {
 
@@ -50,7 +48,7 @@ var webshop = function webshop() {
 
 		  if (result) {
 		  	if (data['_id'] === undefined) {
-		  		data['_id'] = result[0]['_id'];
+		  		data['_id'] = result['_id'];
 		  	}
 
 				updateProduct(done, jobName, db, data);
@@ -67,7 +65,7 @@ var webshop = function webshop() {
 		collection.insert(data, function(err, docs) {
       
       collection.count(function(err, count) {
-        console.log(format("count = %s", count));
+        console.log(format("insertProduct count = %s", count));
 	  		done();
       });
     });
@@ -93,12 +91,9 @@ var webshop = function webshop() {
 		}
 
 	  var collection = db.collection('products');
-		collection.update(where, {$set: data}, {w:1}, function(err, docs) {
-      
-      collection.count(function(err, count) {
-        console.log(format("count = %s", count));
-	  		done();
-      });
+		collection.update(where, {$set: data}, {w:1}, function(err, docs) {			
+      //console.log(format("updateProduct "+jobName+" count = %s", docs['result']['n']));
+			done();
     });
 	};
 
@@ -185,15 +180,6 @@ var webshop = function webshop() {
 
 		var collection = db.collection('subCats');
 
-		console.info({
-			/*
-			mainCatId: data.mainCatId,
-			subCatId: data.subCatId,
-			sku: data.sku,
-			subSku: data.subSku,
-			*/
-			subCatid: data.subCatId
-		}, 'check');
 		collection.findOne({
 			/*
 			mainCatId: data.mainCatId,
@@ -201,14 +187,11 @@ var webshop = function webshop() {
 			sku: data.sku,
 			subSku: data.subSku,
 			*/
-			subCatid: data.subCatId
+			subCatId: data.subCatId
 		}, function(error, result) {
 			if (error) {
 				throw new Error('checkSubCats error: '+error);
 			}
-
-			console.info(arguments, 'arguments');
-			return;
 
 		  if (result) {
 		  	done();
@@ -408,7 +391,7 @@ var webshop = function webshop() {
 			console.log(localFile+' exists %s'.debug, exists);
 
 			if (!exists) {
-				queue.add('Downloading '+localFile, callbackXml, [ctx, remoteFile, localFile]);
+				queue.add('Downloading '+localFile, callbackXml, [remoteFile, localFile]);
 				queue.add('Parse '+localFile, parseAllProducts, [ctx, localFile]);
 				queue.run();
 				return;
@@ -417,7 +400,14 @@ var webshop = function webshop() {
 			fs.stat(localFile, function stat(err, stats) {
 				if (err) {
 					console.log('getAllProducts err: %s '.error, err);
-			    	queue.add('Exit process', process.exit, [1]);
+
+				    queue.add('Exit process', function (done, jobName) {
+				    	console.info('Exit process');
+
+				    	process.exit(1);
+				    	done();
+					  });
+
 			    	queue.run();
 					return;
 				}
@@ -426,7 +416,7 @@ var webshop = function webshop() {
 
 				if (stats.size == 0 || now-(new Date(stats.mtime)).getTime()/1000 > maxFileTime) {
 
-					queue.add('Downloading '+localFile, callbackXml, [ctx, remoteFile, localFile]);
+					queue.add('Downloading '+localFile, callbackXml, [remoteFile, localFile]);
 					queue.add('Parse '+localFile, parseAllProducts, [ctx, localFile]);
 				} else {
 					queue.add('Parse '+localFile, parseAllProducts, [ctx, localFile]);
@@ -442,7 +432,12 @@ var webshop = function webshop() {
 		fs.exists(localFile, function exists(exists) {
 			if (!exists) {
 				console.log('parseAllProducts err: %s '.error, err);
-				queue.add('Exit process', process.exit, [1]);
+		    queue.add('Exit process', function (done, jobName) {
+		    	console.info('Exit process');
+
+		    	process.exit(1);
+		    	done();
+			  });
 				done();
 				return;
 			}
@@ -450,7 +445,12 @@ var webshop = function webshop() {
 			fs.readFile(localFile, function readFile(err, data) {
 				if (err) {
 					console.log('parseAllProducts err: %s '.error, err);
-					queue.add('Exit process', process.exit, [1]);
+			    queue.add('Exit process', function (done, jobName) {
+			    	console.info('Exit process');
+
+			    	process.exit(1);
+			    	done();
+				  });
 					done();
 					return;
 				}
@@ -459,12 +459,17 @@ var webshop = function webshop() {
 				  function parsedXml(err, data) {
 				  	if (err) {
 				  		console.error('Error: %s'.error, err);
-				    	queue.add('Exit process', process.exit, [1]);
+					    queue.add('Exit process', function (done, jobName) {
+					    	console.info('Exit process');
+
+					    	process.exit(1);
+					    	done();
+						  });
 							done();
 				  		return;
 				  	}
 
-				  	var totalProducts =  data.producten.product.count();
+				  	var totalProducts =  (data.producten.product.count()-1);
 				  	var getProductText = function getProductText(data) {
 				  		if (typeof data.text === 'function') {
 				  			return data.text();
@@ -527,12 +532,18 @@ var webshop = function webshop() {
 						queue.add('insert product '+i, checkProducts, [db, productData]);
 					});
 
-				    //Delete data
-				    delete data;
+			  		console.log('totalProducts %s'.info, totalProducts+1);
 
-			  		console.log('totalProducts %s'.info, totalProducts);
+				    queue.add('Exit process', function (done, jobName) {
+				    	console.info('Exit process');
 
-				    queue.add('Exit process', process.exit, [1]);
+					    //Delete data
+					    delete data;
+
+				    	process.exit(1);
+				    	done();
+					  });
+
 						done();
 				  }
 				);
@@ -574,7 +585,14 @@ var webshop = function webshop() {
 			fs.stat(localFile, function stat(err, stats) {
 				if (err) {
 					console.log('getProductStocks err: %s '.error, err);
-			    	queue.add('Exit process', process.exit, [1]);
+
+				    queue.add('Exit process', function (done, jobName) {
+				    	console.info('Exit process');
+
+				    	process.exit(1);
+				    	done();
+					  });
+
 			    	queue.run();
 					return;
 				}
@@ -598,7 +616,13 @@ var webshop = function webshop() {
 		fs.readFile(localFile, function readFile(err, data) {
 			if (err) {
 				console.log('parseProductStocks err: %s '.error, err);
-		    	queue.add('Exit process', process.exit, [1]);
+
+		    queue.add('Exit process', function (done, jobName) {
+		    	console.info('Exit process');
+
+		    	process.exit(1);
+		    	done();
+			  });
 				done();
 				return;
 			}
@@ -607,7 +631,12 @@ var webshop = function webshop() {
 			function parsedXml(err, data) {
 				if (err) {
 					console.error('Error: %s'.error, err);
-					queue.add('Exit process', process.exit, [1]);
+			    queue.add('Exit process', function (done, jobName) {
+			    	console.info('Exit process');
+
+			    	process.exit(1);
+			    	done();
+				  });
 					done();
 					return;
 				}
@@ -638,14 +667,19 @@ var webshop = function webshop() {
 
 				});
 
+	  		console.log('totalProducts %s'.info, totalProducts);
+
+		    queue.add('Exit process', function (done, jobName) {
+		    	console.info('Exit process');
+
 			    //Delete data
 			    delete data;
 
-		  		console.log('totalProducts %s'.info, totalProducts);
-
-			    queue.add('Exit process', process.exit, [1]);
+		    	process.exit(1);
+		    	done();
+			  });
 				done();
-		  	});
+	  	});
 		});		
 	};
 
@@ -682,7 +716,14 @@ var webshop = function webshop() {
 
 				if (err) {
 					console.log('getNewProducts err: %s '.error, err);
-			    	queue.add('Exit process', process.exit, [1]);
+
+				    queue.add('Exit process', function (done, jobName) {
+				    	console.info('Exit process');
+
+				    	process.exit(1);
+				    	done();
+					  });
+
 			    	queue.run();
 					return;
 				}
@@ -707,7 +748,14 @@ var webshop = function webshop() {
 		fs.readFile(localFile, function readFile(err, data) {
 			if (err) {
 				console.log('parseNewProducts err: %s '.error, err);
-		    queue.add('Exit process', process.exit, [1]);
+
+		    queue.add('Exit process', function (done, jobName) {
+		    	console.info('Exit process');
+
+		    	process.exit(1);
+		    	done();
+			  });
+
 				done();
 				return;
 			}
@@ -716,7 +764,14 @@ var webshop = function webshop() {
 			  function parsedXml(err, data) {
 			  	if (err) {
 			  		console.error('Error: %s'.error, err);
-			    	queue.add('Exit process', process.exit, [1]);
+
+				    queue.add('Exit process', function (done, jobName) {
+				    	console.info('Exit process');
+
+				    	process.exit(1);
+				    	done();
+					  });
+
 						done();
 			  		return;
 			  	}
@@ -787,12 +842,15 @@ var webshop = function webshop() {
 
 	  		console.log('totalProducts %s'.info, totalProducts);
 
-		    queue.add('Exit process', function () {
+		    queue.add('Exit process', function (done, jobName) {
+		    	console.info('Exit process');
 
-			 		//Delete data
+			    //Delete data
 			    delete data;
-		    	process.exit;
-		    }, [1]);
+
+		    	process.exit(1);
+		    	done();
+			  });
 
 				done();
 			});
@@ -832,7 +890,14 @@ var webshop = function webshop() {
 
 				if (err) {
 					console.log('getRemovedProducts err: %s '.error, err);
-			    	queue.add('Exit process', process.exit, [1]);
+
+				    queue.add('Exit process', function (done, jobName) {
+				    	console.info('Exit process');
+
+				    	process.exit(1);
+				    	done();
+					  });
+
 			    	queue.run();
 					return;
 				}
@@ -857,7 +922,13 @@ var webshop = function webshop() {
 		fs.readFile(localFile, function readFile(err, data) {
 			if (err) {
 				console.log('parseRemovedProducts err: %s '.error, err);
-		    	queue.add('Exit process', process.exit, [1]);
+
+		    queue.add('Exit process', function (done, jobName) {
+		    	console.info('Exit process');
+
+		    	process.exit(1);
+		    	done();
+			  });
 				done();
 				return;
 			}
@@ -867,8 +938,15 @@ var webshop = function webshop() {
 			  function parsedXml(err, data) {
 			  	if (err) {
 			  		console.error('Error: %s'.error, err);
-			    	queue.add('Exit process', process.exit, [1]);
-					done();
+
+				    queue.add('Exit process', function (done, jobName) {
+				    	console.info('Exit process');
+
+				    	process.exit(1);
+				    	done();
+					  });
+
+						done();
 			  		return;
 			  	}
 
@@ -900,7 +978,12 @@ var webshop = function webshop() {
 
 		  		console.log('totalProducts %s'.info, totalProducts);
 
-			    queue.add('Exit process', process.exit, [1]);
+			    queue.add('Exit process', function (done, jobName) {
+			    	console.info('Exit process');
+
+			    	process.exit(1);
+			    	done();
+				  });
 				done()
 			});
 		});		
