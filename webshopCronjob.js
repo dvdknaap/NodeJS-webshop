@@ -12,7 +12,6 @@ var webshopInitSettings = {
 	appDir: __dirname
 };
 
-
 colors.setTheme(webshopSettings.consoleColors);
 webshop.init(webshopInitSettings);
 
@@ -29,23 +28,24 @@ program
 ;
 
 if (program.create) {
-	webshop.createTables();
+	webshop.connectMongoDb(webshop.createTables);
 
 } else if (program.all) {
 
-	webshop.getAllProducts();
+	webshop.connectMongoDb(webshop.getAllProducts);
 } else if (program.stock) {
 
-	webshop.getProductStocks();
+	webshop.connectMongoDb(webshop.getProductStocks);
 } else if (program.new) {
-	webshop.getNewProducts();
+	webshop.connectMongoDb(webshop.getNewProducts);
 
 } else if (program.removed) {
 
-	webshop.getRemovedProducts();
+	webshop.connectMongoDb(webshop.getRemovedProducts);
 } else if (program.downloadPictures) {
 
-	webshop.downloadProductPictures();
+	webshop.connectMongoDb(webshop.downloadProductPictures);
+
 } else {
 	program.help();
 }
