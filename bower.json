@@ -1,0 +1,24 @@
+{
+  "name": "mijnsexshop.nl",
+  "version": "0.0.5",
+  "homepage": "https://github.com/DutchProgrammer/NodeJS-webshop",
+  "authors": [
+    "DutchProgrammer <danny@dutchprogrammer.nl>"
+  ],
+  "description": "webshop in nodejs",
+  "main": "webshop.js",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-motion": "~0.3.3",
+    "angular-strap": "~2.0.0",
+    "core-style": "Polymer/core-style#~0.3.4"
+  }
+}
