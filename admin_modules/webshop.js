@@ -7,6 +7,7 @@ var webshop = function webshop() {
 	var fs              = require('fs');
 	var mongodb         = require('mongodb').MongoClient;
 	var maxFileTime     = 86400;
+	var mkdirp          = require('mkdirp');
 	var webshopSettings = { db: {}, pictures: {}, appDir: ''};
 
 	this.init = function init(settings, nodeFile, program) {
@@ -65,7 +66,7 @@ var webshop = function webshop() {
 		collection.insert(data, function(err, docs) {
       
       collection.count(function(err, count) {
-        console.log(format("insertProduct count = %s", count));
+        //console.log(format("insertProduct count = %s", count));
 	  		done();
       });
     });
@@ -90,8 +91,17 @@ var webshop = function webshop() {
 			where = update;
 		}
 
+
+		data['updateDateTime'] = new Date();
+
 	  var collection = db.collection('products');
-		collection.update(where, {$set: data}, {w:1}, function(err, docs) {			
+		collection.update(where, {$set: data}, {w:1}, function(err, docs) {
+
+			if (err) {
+				console.error('updateProduct err', err);
+				done();
+				return;
+			}
       //console.log(format("updateProduct "+jobName+" count = %s", docs['result']['n']));
 			done();
     });
@@ -165,7 +175,7 @@ var webshop = function webshop() {
 		}, function(err, docs) {
       
       collection.count(function(err, count) {
-        console.log(format("count = %s", count));
+        //console.log(format("count = %s", count));
 	  		done();
       });
     });
@@ -216,7 +226,7 @@ var webshop = function webshop() {
 		}, function(err, docs) {
       
       collection.count(function(err, count) {
-        console.log(format("count = %s", count));
+        //console.log(format("count = %s", count));
 	  		done();
       });
     });
@@ -264,7 +274,7 @@ var webshop = function webshop() {
 		}, function(err, docs) {
       
       collection.count(function(err, count) {
-        console.log(format("count = %s", count));
+        //console.log(format("count = %s", count));
 	  		done();
       });
     });
@@ -486,7 +496,7 @@ var webshop = function webshop() {
 							'title' : getProductText(product.titel),  
 							'brand' : getProductText(product.merk),  
 							'buyPrice' : getProductText(product.actieprijs), 
-							//'discountPrice' : getProductText(product.inkoopprijs),  
+							'discountPrice' : getProductText(product.inkoopprijs),  
 							'sellPrice' : getProductText(product.adviesprijs),  
 							'mainCatId' : getProductText(product.hoofdcatid),  
 							'mainCat' : getProductText(product.hoofdcategorie),  
@@ -520,10 +530,12 @@ var webshop = function webshop() {
 							'discount' : getProductText(product.korting), 
 							'remaining' : getProductText(product.uitlopend), 
 							'barcode' : getProductText(product.barcode), 
-							//'numPictures' : getProductText(product.aantalfotos), 
+							'numPictures' : getProductText(product.aantalfotos), 
 							'video' : getProductText(product.video), 
 							'lxbxh' : getProductText(product.lxbxh), 
-							'censorpic' : getProductText(product.censuurfoto)
+							'censorpic' : getProductText(product.censuurfoto), 
+							'updateDateTime' : new Date(),
+							'active': 0
 						};
 
 						queue.add('check mainChats '+i, checkMainCats, [db, productData]);
@@ -557,12 +569,13 @@ var webshop = function webshop() {
 		var remoteFile    = 'https://www.erotischegroothandel.nl/downloads/eg_xml_feed_stock.xml';
 		var localFileName = 'stock.xml';
 		var localFile     = webshopSettings.appDir+'/tmp/'+localFileName;
+		var ctx           = this;
 				
 		function callbackXml(done, job, remoteFile, localFile, picture) {
 			download.clearTriggers();
 			download.on('downloaded', function downloaded(details) {
 				console.info('downloaded: localFile: %s - remoteFile: %s - totalSize: %s'.info, details.localFile, details.remoteFile, details.totalSize);
-				queue.add('Parse '+localFile, parseProductStocks, [localFile]);
+				queue.add('Parse '+localFile, parseProductStocks, [ctx, localFile]);
 				done();
 			});
 
@@ -577,7 +590,7 @@ var webshop = function webshop() {
 		fs.exists(localFile, function exists(exists) {
 			if (!exists) {
 				queue.add('Downloading '+localFile, callbackXml, [remoteFile, localFile]);
-				queue.add('Parse '+localFile, parseProductStocks, [localFile]);
+				queue.add('Parse '+localFile, parseProductStocks, [ctx, localFile]);
 				queue.run();
 				return;
 			}
@@ -601,9 +614,9 @@ var webshop = function webshop() {
 
 				if (stats.size == 0 || now-(new Date(stats.mtime)).getTime()/1000 > maxFileTime) {
 					queue.add('Downloading '+localFile, callbackXml, [remoteFile, localFile]);
-					queue.add('Parse '+localFile, parseProductStocks, [localFile]);
+					queue.add('Parse '+localFile, parseProductStocks, [ctx, localFile]);
 				} else {
-					queue.add('Parse '+localFile, parseProductStocks, [localFile]);
+					queue.add('Parse '+localFile, parseProductStocks, [ctx, localFile]);
 				}
 
 				queue.run();
@@ -611,7 +624,7 @@ var webshop = function webshop() {
 		});
 	};
 
-	var parseProductStocks = function parseProductStocks(done, jobName, localFile) {
+	var parseProductStocks = function parseProductStocks(done, jobName, db, localFile) {
 
 		fs.readFile(localFile, function readFile(err, data) {
 			if (err) {
@@ -663,7 +676,7 @@ var webshop = function webshop() {
 						'subSku' : getProductText(product.productnr),
 					};
 
-					queue.add('update product '+i, updateProduct, [productData, productWhere]);
+					queue.add('update product '+i, updateProduct, [db, productData, productWhere]);
 
 				});
 
@@ -684,16 +697,17 @@ var webshop = function webshop() {
 	};
 
 	this.getNewProducts = function getNewProducts() {
-
+		
 		var remoteFile    = 'http://graphics.edc-internet.nl/b2b_feed.php?key=155223092395BK6Z952BRR52H13H0213&sort=xml&type=xml&lang=nl&new=1';
 		var localFileName = 'new.xml';
 		var localFile     = webshopSettings.appDir+'/tmp/'+localFileName;
+		var ctx           = this;
 
 		function callbackXml(done, job, remoteFile, localFile, picture) {
 			download.clearTriggers();
 			download.on('downloaded', function downloaded(details) {
 				console.info('downloaded: localFile: %s - remoteFile: %s - totalSize: %s'.info, details.localFile, details.remoteFile, details.totalSize);
-				queue.add('Parse '+localFile, parseNewProducts, [localFile]);
+				queue.add('Parse '+localFile, parseNewProducts, [ctx, localFile]);
 				done();
 			});
 
@@ -717,14 +731,14 @@ var webshop = function webshop() {
 				if (err) {
 					console.log('getNewProducts err: %s '.error, err);
 
-				    queue.add('Exit process', function (done, jobName) {
-				    	console.info('Exit process');
+			    queue.add('Exit process', function (done, jobName) {
+			    	console.info('Exit process');
 
-				    	process.exit(1);
-				    	done();
-					  });
+			    	process.exit(1);
+			    	done();
+				  });
 
-			    	queue.run();
+		    	queue.run();
 					return;
 				}
 
@@ -733,9 +747,9 @@ var webshop = function webshop() {
 				if (stats.size == 0 || now-(new Date(stats.mtime)).getTime()/1000 > maxFileTime) {
 
 					queue.add('Downloading '+localFile, callbackXml, [remoteFile, localFile]);
-					queue.add('Parse '+localFile, parseNewProducts, [localFile]);
+					queue.add('Parse '+localFile, parseNewProducts, [ctx, localFile]);
 				} else {
-					queue.add('Parse '+localFile, parseNewProducts, [localFile]);
+					queue.add('Parse '+localFile, parseNewProducts, [ctx, localFile]);
 				}
 				
 				queue.run();
@@ -830,7 +844,8 @@ var webshop = function webshop() {
 						//'numPictures' : getProductText(product.aantalfotos),  
 						'video' : getProductText(product.video),  
 						'lxbxh' : getProductText(product.lxbxh),  
-						'censorpic' : getProductText(product.censuurfoto)
+						'censorpic' : getProductText(product.censuurfoto),
+						'active': 0
 					};
 
 					queue.add('check mainChats '+i, checkMainCats, [db, productData]);
@@ -858,16 +873,17 @@ var webshop = function webshop() {
 	};
 
 	this.getRemovedProducts = function getRemovedProducts() {
-
+		
 		var remoteFile    = 'http://graphics.edc-internet.nl/xml/deleted_products.xml';
 		var localFileName = 'removed.xml';
 		var localFile     = webshopSettings.appDir+'/tmp/'+localFileName;
+		var ctx           = this;
 
 		function callbackXml(done, job, remoteFile, localFile, picture) {
 			download.clearTriggers();
 			download.on('downloaded', function downloaded(details) {
 				console.info('downloaded: localFile: %s - remoteFile: %s - totalSize: %s'.info, details.localFile, details.remoteFile, details.totalSize);
-				queue.add('Parse '+localFile, parseRemovedProducts, [localFile]);
+				queue.add('Parse '+localFile, parseRemovedProducts, [ctx, localFile]);
 				done();
 			});
 
@@ -907,9 +923,9 @@ var webshop = function webshop() {
 				if (stats.size == 0 || now-(new Date(stats.mtime)).getTime()/1000 > maxFileTime) {
 
 					queue.add('Downloading '+localFile, callbackXml, [remoteFile, localFile]);
-					queue.add('Parse '+localFile, parseRemovedProducts, [localFile]);
+					queue.add('Parse '+localFile, parseRemovedProducts, [ctx, localFile]);
 				} else {
-					queue.add('Parse '+localFile, parseRemovedProducts, [localFile]);
+					queue.add('Parse '+localFile, parseRemovedProducts, [ctx, localFile]);
 				}
 				
 				queue.run();
@@ -917,7 +933,7 @@ var webshop = function webshop() {
 		});
 	};
 
-	var parseRemovedProducts = function parseRemovedProducts(done, jobName, localFile) {
+	var parseRemovedProducts = function parseRemovedProducts(done, jobName, db, localFile) {
 
 		fs.readFile(localFile, function readFile(err, data) {
 			if (err) {
@@ -969,7 +985,7 @@ var webshop = function webshop() {
 						'subSku' : getProductText(product.prnr),
 					};
 
-					queue.add('update product '+i, updateProduct, [productData, productWhere]);
+					queue.add('update product '+i, updateProduct, [db, productData, productWhere]);
 
 				});
 
@@ -991,6 +1007,8 @@ var webshop = function webshop() {
 
 	this.downloadProductPictures = function downloadProductPictures() {
 
+		var ctx = this;
+
 		function callbackPicture(done, job, remoteFile, localFile, picture) {
 			
 			download.clearTriggers();
@@ -1007,7 +1025,32 @@ var webshop = function webshop() {
 			download.downloadPicture(remoteFile, localFile);
 		};
 
-		knex('products').where('active', 'N').limit(500).select('id', 'sku', 'numPictures').then(function (results) {
+
+		for (var picture in webshopSettings.pictures) {
+
+			fs.exists(webshopSettings.appDir+'/img/product/'+picture+'/', function(exists) {
+			    if (!exists) {
+						mkdirp(webshopSettings.appDir+'/img/product/'+picture+'/', function (err) {
+						  if (err) {
+						  	console.error(err, 'err');
+						  } else {
+						  	console.info('created folder: '+picture);
+						  }
+						});
+			    }
+			});
+		}
+
+    var collection = ctx.collection('products');
+
+		collection.find({
+			'active': 0
+		}, { fields : ['id', 'sku', 'numPictures'] }).toArray(function(error, results) {
+
+			if (error) {
+				throw new Error('checkPictures error: '+error);
+			}
+
 			var numResults = results.length;
 
 			if (numResults === 0) {
@@ -1016,7 +1059,6 @@ var webshop = function webshop() {
 				queue.run();
 				return;
 			}
-
 
 			for (var i=0;i < numResults;++i) {
 				for (var picture in webshopSettings.pictures) {
@@ -1031,69 +1073,75 @@ var webshop = function webshop() {
 						var localFile = webshopSettings.appDir+'/img/product/'+picture+'/'+fileName+'.jpg';
 
 						var exists = fs.existsSync(localFile);
-						if (!exists) {
+						if (!exists) {							
 							queue.add('Downloading '+localFile, callbackPicture, [remoteFile, localFile, picture]);
 						}
 					}
 				}
 			}
 
-			queue.add('Check pictures', checkPictures);
+			queue.add('Check pictures', checkPictures, [ctx]);
 			//queue.add('Exit script', process.exit, [1]);
 			queue.run();
+			return;
 		});
 	};
 
-	var checkPictures = function checkPictures(done, job) {
+	var checkPictures = function checkPictures(done, job, ctx) {
+    var collection = ctx.collection('products');
 
-		knex('products').where('active', 'N').select('id', 'sku', 'numPictures').then(function (results) {
-			var numResults = results.length;
+		collection.find({
+			'active': 0
+		}, { fields : ['id', 'sku', 'numPictures'] }).toArray(function(error, results) {
 
-			if (numResults === 0) {
-				console.info('Nothing to do'.debug);
-				queue.add('Exit script', process.exit, [1]);
-				queue.run();
-				return;
+			if (error) {
+				throw new Error('checkPictures error: '+error);
 			}
 
-			var totalPicturesFormats = Object.keys(webshopSettings.pictures).length;
+			var numResults = results.length;
 
-			for (var i=0;i < numResults;++i) {
+		  if (results) {
 
-				var totalPictures = results[i].numPictures*totalPicturesFormats;
-				var totalFound	  = 0;
-				
-				for (var picture in webshopSettings.pictures) {
-					for (var p=0;p < results[i].numPictures;++p) {
+				var totalPicturesFormats = Object.keys(webshopSettings.pictures).length;
 
-						if (results[i].sku === undefined) {
-							console.error('sku doesnt exists'.error, results[i]);
-							break;
+				for (var i=0;i < numResults;++i) {
+
+					var totalPictures = results[i].numPictures*totalPicturesFormats;
+					var totalFound	  = 0;
+					
+					for (var picture in webshopSettings.pictures) {
+						for (var p=0;p < results[i].numPictures;++p) {
+
+							if (results[i].sku === undefined) {
+								console.error('sku doesnt exists'.error, results[i]);
+								break;
+							}
+
+							var fileName  = results[i].sku+(p > 1 ? '_'+p : '');
+							var localFile = webshopSettings.appDir+'/img/product/'+picture+'/'+fileName+'.jpg';
+							var exists    = fs.existsSync(localFile);
+							if (exists) {
+								++totalFound;
+							}
+
 						}
+					}
 
-						var fileName     = results[i].sku+(p > 1 ? '_'+p : '');
-						var localFile = webshopSettings.appDir+'/img/product/'+picture+'/'+fileName+'.jpg';
-						var exists       = fs.existsSync(localFile);
-						if (exists) {
-							++totalFound;
-						}
-
+					if (totalFound === totalPictures) {
+						queue.add('checkPictures'+i, updateProduct, [ctx, {active: 1}, {_id: results[i]['_id']}]);
 					}
 				}
 
-				if (totalFound === totalPictures) {
-					var updateProductData = {
-						id: results[i].id,
-						active: 'J'
-					};
-
-
-					queue.add('checkPictures', updateProduct, [updateProductData]);
+				queue.add('Exit script', process.exit, [1]);
+				done();
+		  } else {
+				if (numResults === 0) {
+					console.info('Nothing to do'.debug);
+					queue.add('Exit script', process.exit, [1]);
+					queue.run();
+					return;
 				}
 			}
-
-			queue.add('Exit script', process.exit, [1]);
-			done();
 		});
 	};
 
