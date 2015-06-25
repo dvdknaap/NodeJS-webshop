@@ -1,7 +1,7 @@
 var webshop = function webshop() {	
 	var format          = require('util').format;
-	var download        = require('./download');
-	var queue           = require('./queue');
+	var download        = require('nodejs-download');
+	var queue           = require('nodejs-queue');
 	var xmlreader       = require('xmlreader');
 	var downloaded      = {};
 	var fs              = require('fs');

@@ -35,7 +35,7 @@ app.get('*.(css|js|woff|ttf|svg|eot)', function (req, res) {
 	}
 	
 	fs.readFile(url, function (err, data) {
-		console.log('error', err);
+		
 		if (err) {
 			console.log(err, 'not found ');
 			res.writeHead(404, {'Content-Type': 'text/html'});
@@ -79,9 +79,11 @@ app.get('*.(css|js|woff|ttf|svg|eot)', function (req, res) {
 	});
 });
 
-app.get('/', function (req, res) {
 
-	var url = (req.url === '/' ? 'index.html' : req.url);
+app.get('(/views/*.html)', function (req, res) {
+
+	var url = req.url.substr(1);
+
 	fs.readFile(url, function (err, data) {
 		if (err) {
 			console.log(err, 'not found ');
@@ -91,6 +93,24 @@ app.get('/', function (req, res) {
 			return;
 		}
 
+		res.writeHead(200, {'Content-Type': 'text/html'});
+		res.write(data);
+		res.end();
+	});
+});
+
+app.get('(/|*.html)', function (req, res) {
+
+	var url = 'index.html';
+
+	fs.readFile(url, function (err, data) {
+		if (err) {
+			console.log(err, 'not found ');
+			res.writeHead(404, {'Content-Type': 'text/html'});
+			res.write('404 file not found');
+			res.end();
+			return;
+		}
 
 		res.writeHead(200, {'Content-Type': 'text/html'});
 		res.write(data);

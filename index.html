@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html lang="nl" ng-app>
+<html lang="nl" ng-app="webshopApp">
 <head>
+	<base href="/">
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Mij sexSehop</title>
-	<link rel="stylesheet" href="">
-	<script src="bower_components/angular/angular.js"></script>
-    <link href="css/font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet">
+	<link href="css/font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet">
 	<!-- Bootstrap -->
 	<link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -17,520 +16,208 @@
 	<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
 	<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 	<![endif]-->
-	<script data-main="./js/config.js" src="./node_modules/requirejs/require.js"></script>
+	<script src="./bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="./bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="./bower_components/angular/angular.min.js"></script>
+	<script src="./bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+	<script src="./bower_components/angular-cookies/angular-cookies.min.js"></script>
+	<script src="./js/webshop.js"></script>
+	
+
 	<link href="css/webshop.css" media="all" rel="stylesheet" type="text/css" />
 
 </head>
-<body>
+<body ng-controller="mainCtrl" ng-class="{{pageClass}}" ng-strict-di>
 
-<header class="headerScroll">
+	<div class="loading-state" ng-if="loading">
+
+		<div class="well logo">
+			Mij sexshop <span>Online Shop</span>
+		</div>
+		<i class="fa fa-spinner fa-spin"></i>
+		Laden..
+	</div>
+
+	<header class="headerScroll">
+	  <div class="container">
+	    <div class="row">
+
+	  		<!-- Logo -->
+	      <div class="col-lg-4 col-md-3 hidden-sm hidden-xs">
+	      	<div class="well logo">
+	      		<a href="index.html">
+	      			Mij sexshop <span>Online Shop</span>
+	      		</a>
+	      	</div>
+	      </div>
+	      <!-- End Logo -->
+
+				<!-- Search Form -->
+	      <div class="col-lg-5 col-md-5 col-sm-7 col-xs-12">
+	      	<div class="well">
+	        	<form action="" class="form-inline">
+		        	<div class="form-group">
+		            <div class="input-group">
+		              <span class="input-group-btn">
+		                <input type="text" placeholder="Zoek sexartikelen" class="form-control input-search">
+		                <div class="btn-group">
+		                  <button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
+		                    <span class="pull-left">Categorie</span>
+		                    <span class="pull-right"><i class="fa fa-caret-down"></i></span>
+		                  </button>
+		                  <ul role="menu" class="dropdown-menu cart-content">
+		                    <li><a ui-sref="dildo">dildo's</a></li>
+		                    <li><a href="diversen.html">diversen</a></li>
+		                    <li><a href="kleding-voor-haar.html">kleding voor haar</a></li>
+		                    <li><a href="kleding-voor-hem.html">kleding voor hem</a></li>
+		                    <li><a href="toys-voor-dames.html">toys voor dames</a></li>
+		                    <li><a href="drogisterij.html">drogisterij</a></li>
+		                    <li><a href="vibrator.html">vibrator</a></li>
+		                  </ul>
+		                </div>
+		                <button type="submit" class="btn btn-default no-border-left"><i class="fa fa-search"></i></button>
+		              </span>
+		            </div>
+		          </div>
+	          </form>
+	      	</div>
+	      </div>
+	      <!-- End Search Form -->
+
+	      <!-- Shopping Cart List -->
+	      <div class="col-lg-3 col-md-4 col-sm-5">
+	        <div class="well">
+	          <div class="btn-group btn-group-cart">
+	            <button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
+	              <span class="pull-left"><i class="fa fa-shopping-cart icon-cart"></i></span>
+	              <span class="pull-left">Winkel wagen: 2 artikel(en)</span>
+	              <span class="pull-right"><i class="fa fa-caret-down"></i></span>
+	            </button>
+	            <ul role="menu" class="dropdown-menu cart-content">
+	              <li>
+	              <a href="detail.html">
+	                <b>Simply Sinful Garter set Diva Queen Size 3XL/4XL</b>
+	                <span>x1 &euro;50.35</span>
+	              </a>
+	              </li>
+	              <li>
+	                <a href="detail.html">
+	                  <b>Horny U Schoolmeisjes kostuum Roze</b>
+	                  <span>x1 &euro;50.55</span>
+	                </a>
+	              </li>
+	              <li class="divider"></li>
+	              <li><a href="cart.html">Totaal: &euro;100.85</a></li>
+	            </ul>
+	          </div>
+	        </div>
+	      </div>
+	      <!-- End Shopping Cart List -->
+	    </div>
+		</div>
+	</header>
+
+	<header>
     <div class="container">
-        <div class="row">
+      <div class="row">
 
-        	<!-- Logo -->
-            <div class="col-lg-4 col-md-3 hidden-sm hidden-xs">
-            	<div class="well logo">
-            		<a href="index.html">
-            			Mij sexshop <span>Online Shop</span>
-            		</a>
-            	</div>
-            </div>
-            <!-- End Logo -->
-
-			<!-- Search Form -->
-            <div class="col-lg-5 col-md-5 col-sm-7 col-xs-12">
-            	<div class="well">
-                    <form action="" class="form-inline">
-                    	<div class="form-group">
-	                        <div class="input-group">
-	                            <span class="input-group-btn">
-	                            <input type="text" placeholder="Zoek sexartikelen" class="form-control input-search">
-			                    <div class="btn-group">
-			                        <button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
-			                            <span class="pull-left">Categorie</span>
-			                            <span class="pull-right"><i class="fa fa-caret-down"></i></span>
-			                        </button>
-			                        <ul role="menu" class="dropdown-menu cart-content">
-			                            <li><a href="detail.html">dildo's</a></li>
-			                            <li><a href="detail.html">diversen</a></li>
-			                            <li><a href="detail.html">kleding voor haar</a></li>
-			                            <li><a href="detail.html">kleding voor hem</a></li>
-			                            <li><a href="detail.html">toys voor dames</a></li>
-			                            <li><a href="detail.html">drogisterij</a></li>
-			                            <li><a href="detail.html">vibrator</a></li>
-			                        </ul>
-			                    </div>
-	                                <button type="submit" class="btn btn-default no-border-left"><i class="fa fa-search"></i></button>
-	                            </span>
-	                        </div>
-	                    </div>
-                    </form>
-                </div>
-            </div>
-            <!-- End Search Form -->
-
-            <!-- Shopping Cart List -->
-            <div class="col-lg-3 col-md-4 col-sm-5">
-                <div class="well">
-                    <div class="btn-group btn-group-cart">
-                        <button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
-                            <span class="pull-left"><i class="fa fa-shopping-cart icon-cart"></i></span>
-                            <span class="pull-left">Winkel wagen: 2 artikel(en)</span>
-                            <span class="pull-right"><i class="fa fa-caret-down"></i></span>
-                        </button>
-                        <ul role="menu" class="dropdown-menu cart-content">
-                            <li>
-                                <a href="detail.html">
-                                    <b>Simply Sinful Garter set Diva Queen Size 3XL/4XL</b>
-                                    <span>x1 &euro;50.35</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="detail.html">
-                                    <b>Horny U Schoolmeisjes kostuum Roze</b>
-                                    <span>x1 &euro;50.55</span>
-                                </a>
-                            </li>
-                            <li class="divider"></li>
-                            <li><a href="cart.html">Totaal: &euro;100.85</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <!-- End Shopping Cart List -->
-        </div>
-    </div>
-</header>
-
-<header>
-    <div class="container">
-        <div class="row">
-
-        	<!-- Logo -->
-            <div class="col-lg-4 col-md-3 hidden-sm hidden-xs">
-            	<div class="well logo">
-            		<a href="index.html">
-            			Mij sexshop <span>Online Shop</span>
-            		</a>
-            		<div>Lorem ipsum dolor sit amet.</div>
-            	</div>
-            </div>
-            <!-- End Logo -->
-
-			<!-- Search Form -->
-            <div class="col-lg-5 col-md-5 col-sm-7 col-xs-12">
-            	<div class="well">
-                    <form action="">
-                        <div class="input-group">
-                            <input type="text" placeholder="Zoek sexartikelen" class="form-control input-search">
-                            <span class="input-group-btn">
-                                <button type="submit" class="btn btn-default no-border-left"><i class="fa fa-search"></i></button>
-                            </span>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <!-- End Search Form -->
-
-            <!-- Shopping Cart List -->
-            <div class="col-lg-3 col-md-4 col-sm-5">
-                <div class="well">
-                    <div class="btn-group btn-group-cart">
-                        <button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
-                            <span class="pull-left"><i class="fa fa-shopping-cart icon-cart"></i></span>
-                            <span class="pull-left">Winkel wagen: 2 artikel(en)</span>
-                            <span class="pull-right"><i class="fa fa-caret-down"></i></span>
-                        </button>
-                        <ul role="menu" class="dropdown-menu cart-content">
-                            <li>
-                                <a href="detail.html">
-                                    <b>Simply Sinful Garter set Diva Queen Size 3XL/4XL</b>
-                                    <span>x1 &euro;50.35</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="detail.html">
-                                    <b>Horny U Schoolmeisjes kostuum Roze</b>
-                                    <span>x1 &euro;50.55</span>
-                                </a>
-                            </li>
-                            <li class="divider"></li>
-                            <li><a href="cart.html">Totaal: &euro;100.85</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <!-- End Shopping Cart List -->
-        </div>
-    </div>
-</header>
-
-
-<nav role="navigation" class="navbar navbar-inverse">
-    <div class="container">
-        <div class="navbar-header">
-            <button data-target=".navbar-ex1-collapse" data-toggle="collapse" class="navbar-toggle" type="button">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <!-- text logo on mobile view -->
-            <a href="/" class="navbar-brand visible-xs">Mij sexshop Online Shop</a>
-        </div>
-        <div class="navbar-collapse navbar-ex1-collapse collapse in" style="height: auto;">
-            <ul class="nav navbar-nav">
-                <li><a class="active" href="index.html">Home</a></li>
-                <li><a href="catalogue.html">dildo's</a></li>
-                <li><a href="catalogue.html">diversen</a></li>
-                <li><a href="cart.html">kleding voor haar</a></li>
-                <li><a href="checkout.html">kleding voor hem</a></li>
-                <li><a href="index.html">toys voor dames</a></li>
-                <li><a href="index.html">drogisterij</a></li>
-                <li><a href="index.html">vibrator</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
-
-
-<div class="container main-container">
-    <div class="row">
-    	<div class="col-lg-3 col-md-3 col-sm-12">
-
-			<!-- Best Seller -->
-			<div class="col-lg-12 col-md-12 col-sm-6">
-				<div class="no-padding">
-            		<span class="title">Aanbiedingen</span>
-            	</div>
-	            <div class="hero-feature">
-	                <div class="thumbnail text-center">
-	                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-	                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/simply-sinful-garter-set-diva-queen-size-3xl-4xl.jpg" style="position: absolute; width: 280px; height: auto; max-width: none; max-height: none; left: -28px; top: 0px;">
-	                	</a>
-	                    <div class="caption prod-caption">
-	                        <h4><a href="detail.html">Simply Sinful Garter set Diva Queen Size 3XL/4XL</a></h4>
-	                        <p>Ga voor een zeer aanlokkelijke look en verleid je partner met deze jarretel set bestaande uit de jarretelgordel, G-string, X tepelkwastjes en de nylon kousen.</p>
-	                        <p>
-	                        	</p><div class="btn-group">
-		                        	<a class="btn btn-default" href="#">nu &euro; 50.35</a>
-		                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-	                        	</div>
-	                        <p></p>
-	                    </div>
-	                </div>
-	            </div>
-				<div class="hero-feature hidden-sm">
-	                <div class="thumbnail text-center">
-	                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-	                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/horny-u-schoolmeisjes-kostuum-roze.jpg" style="position: absolute; width: 250px; height: auto; max-width: none; max-height: none; left: -13px; top: 0px;">
-	                	</a>
-	                    <div class="caption prod-caption">
-	                        <h4><a href="detail.html">Horny U Schoolmeisjes kostuum Roze</a></h4>
-	                        <p>Dit meisje wil graag nog zoveel van jou leren! Het schoolmeisjeskostuum bestaat uit een kort stretch jurkje met opening voor het decolleté en een speels geruit roze rokje.</p>
-	                        
-	                        <div class="btn-group"> 
-	                        	<a class="btn btn-default" href="#">nu &euro; 50.55</a>
-	                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-                        	</div>
-	                    </div>
-	                </div>
-	            </div>
-			</div>
-			<!-- End Best Seller -->
-
-
-			<!-- Best Seller -->
-			<div class="col-lg-12 col-md-12 col-sm-6">
-				<div class="no-padding">
-            		<span class="title">BEST SELLER</span>
-            	</div>
-	            <div class="hero-feature">
-	                <div class="thumbnail text-center">
-	                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-	                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/panty-met-zwart-geweven-effect.jpg" style="position: absolute; width: 280px; height: auto; max-width: none; max-height: none; left: -28px; top: 0px;">
-	                	</a>
-	                    <div class="caption prod-caption">
-	                        <h4><a href="detail.html">Panty met zwart geweven effect</a></h4>
-	                        <p>Panty waarbij het lijkt alsof er een draad gespannen zit om je benen. Super sexy dus!</p>
-	                        <p>
-	                        	</p><div class="btn-group">
-		                        	<a class="btn btn-default" href="#">&euro; 12.65</a>
-		                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-	                        	</div>
-	                        <p></p>
-	                    </div>
-	                </div>
-	            </div>
-				<div class="hero-feature hidden-sm">
-	                <div class="thumbnail text-center">
-	                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-	                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/zwart-witte-string-open-kruis.jpg" style="position: absolute; width: 250px; height: auto; max-width: none; max-height: none; left: -13px; top: 0px;">
-	                	</a>
-	                    <div class="caption prod-caption">
-	                        <h4><a href="detail.html">Zwart witte string open kruis</a></h4>
-	                        <p>Zwart met witte string met open kruis in smoking stijl met knoop en zwart satijnen strik aan de voorkant.</p>
-	                        <p>
-	                        	</p><div class="btn-group">
-		                        	<a class="btn btn-default" href="#">&euro; 8.11</a>
-		                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-	                        	</div>
-	                        <p></p>
-	                    </div>
-	                </div>
-	            </div>
-			</div>
-			<!-- End Best Seller -->
-
-    	</div>
-
-    	<div class="clearfix visible-sm"></div>
-
-		<!-- Catalogue -->
-    	<div class="col-lg-9 col-md-9 col-sm-12">
-    		<div class="col-lg-12 col-sm-12">
-        		<span class="title">Onze sexartikelen</span>
-        		<p>
-				  Beste bezoeker, welkom bij Jouwsexshop.nl.<br>
-				  Je vindt hier veel leuke producten waar je jezelf, je partner en elkaar mee kunt verwennen.<br>
-				<br>
-				  Ben je al eens vaker in de sexshop geweest?<br>
-				  Het is nu tijd om te kijken wat hier zoal wordt aangeboden zodat je weet wat je hier kunt kopen!<br>
-				  Verras jezelf maar eens meteen met nieuwe kleding of een leuk speeltje, het kan hier allemaal...
-				  <br><br>
-				</p>
+    		<!-- Logo -->
+        <div class="col-lg-4 col-md-3 hidden-sm hidden-xs">
+        	<div class="well logo">
+        		<a href="index.html">
+        			Mij sexshop <span>Online Shop</span>
+        		</a>
+        		<div>Lorem ipsum dolor sit amet.</div>
         	</div>
-            <div class="col-lg-4 col-sm-4 hero-feature text-center">
-                <div class="thumbnail">
-                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/gestippelde-short-met-open-kruis.jpg" style="position: absolute; width: 250px; height: auto; max-width: none; max-height: none; left: -3px; top: 0px;">
-                	</a>
-                    <div class="caption prod-caption">
-                        <h4><a href="detail.html">Gestippelde short met open kruis</a></h4>
-                        <p>Zwarte, schattige short met open kruis. De achterkant is transparant en versierd met stippen. Met kleine roze strikjes aan de voorkant en achterkant. Lief maar stout tegelijk!</p>
-                        <p>
-                        	</p><div class="btn-group">
-	                        	<a class="btn btn-default" href="#">&euro; 13.38</a>
-	                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-                        	</div>
-                        <p></p>
-                    </div>
-                </div>
-            </div>
+        </div>
+        <!-- End Logo -->
 
-            <div class="col-lg-4 col-sm-4 hero-feature text-center">
-                <div class="thumbnail">
-                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/gestippelde-short-met-open-kruis.jpg" style="position: absolute; width: 250px; height: auto; max-width: none; max-height: none; left: -3px; top: 0px;">
-                	</a>
-                    <div class="caption prod-caption">
-                        <h4><a href="detail.html">Gestippelde short met open kruis</a></h4>
-                        <p>Zwarte, schattige short met open kruis. De achterkant is transparant en versierd met stippen. Met kleine roze strikjes aan de voorkant en achterkant. Lief maar stout tegelijk!</p>
-                        <p>
-                        	</p><div class="btn-group">
-	                        	<a class="btn btn-default" href="#">&euro; 13.38</a>
-	                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-                        	</div>
-                        <p></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-sm-4 hero-feature text-center">
-                <div class="thumbnail">
-                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/gestippelde-short-met-open-kruis.jpg" style="position: absolute; width: 250px; height: auto; max-width: none; max-height: none; left: -3px; top: 0px;">
-                	</a>
-                    <div class="caption prod-caption">
-                        <h4><a href="detail.html">Gestippelde short met open kruis</a></h4>
-                        <p>Zwarte, schattige short met open kruis. De achterkant is transparant en versierd met stippen. Met kleine roze strikjes aan de voorkant en achterkant. Lief maar stout tegelijk!</p>
-                        <p>
-                        	</p><div class="btn-group">
-	                        	<a class="btn btn-default" href="#">&euro; 13.38</a>
-	                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-                        	</div>
-                        <p></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-sm-4 hero-feature text-center">
-                <div class="thumbnail">
-                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/gestippelde-short-met-open-kruis.jpg" style="position: absolute; width: 250px; height: auto; max-width: none; max-height: none; left: -3px; top: 0px;">
-                	</a>
-                    <div class="caption prod-caption">
-                        <h4><a href="detail.html">Gestippelde short met open kruis</a></h4>
-                        <p>Zwarte, schattige short met open kruis. De achterkant is transparant en versierd met stippen. Met kleine roze strikjes aan de voorkant en achterkant. Lief maar stout tegelijk!</p>
-                        <p>
-                        	</p><div class="btn-group">
-	                        	<a class="btn btn-default" href="#">&euro; 13.38</a>
-	                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-                        	</div>
-                        <p></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-sm-4 hero-feature text-center">
-                <div class="thumbnail">
-                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/gestippelde-short-met-open-kruis.jpg" style="position: absolute; width: 250px; height: auto; max-width: none; max-height: none; left: -3px; top: 0px;">
-                	</a>
-                    <div class="caption prod-caption">
-                        <h4><a href="detail.html">Gestippelde short met open kruis</a></h4>
-                        <p>Zwarte, schattige short met open kruis. De achterkant is transparant en versierd met stippen. Met kleine roze strikjes aan de voorkant en achterkant. Lief maar stout tegelijk!</p>
-                        <p>
-                        	</p><div class="btn-group">
-	                        	<a class="btn btn-default" href="#">&euro; 13.38</a>
-	                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-                        	</div>
-                        <p></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-sm-4 hero-feature text-center">
-                <div class="thumbnail">
-                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/gestippelde-short-met-open-kruis.jpg" style="position: absolute; width: 250px; height: auto; max-width: none; max-height: none; left: -3px; top: 0px;">
-                	</a>
-                    <div class="caption prod-caption">
-                        <h4><a href="detail.html">Gestippelde short met open kruis</a></h4>
-                        <p>Zwarte, schattige short met open kruis. De achterkant is transparant en versierd met stippen. Met kleine roze strikjes aan de voorkant en achterkant. Lief maar stout tegelijk!</p>
-                        <p>
-                        	</p><div class="btn-group">
-	                        	<a class="btn btn-default" href="#">&euro; 13.38</a>
-	                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-                        	</div>
-                        <p></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-sm-4 hero-feature text-center">
-                <div class="thumbnail">
-                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/gestippelde-short-met-open-kruis.jpg" style="position: absolute; width: 250px; height: auto; max-width: none; max-height: none; left: -3px; top: 0px;">
-                	</a>
-                    <div class="caption prod-caption">
-                        <h4><a href="detail.html">Gestippelde short met open kruis</a></h4>
-                        <p>Zwarte, schattige short met open kruis. De achterkant is transparant en versierd met stippen. Met kleine roze strikjes aan de voorkant en achterkant. Lief maar stout tegelijk!</p>
-                        <p>
-                        	</p><div class="btn-group">
-	                        	<a class="btn btn-default" href="#">&euro; 13.38</a>
-	                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-                        	</div>
-                        <p></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-sm-4 hero-feature text-center">
-                <div class="thumbnail">
-                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/gestippelde-short-met-open-kruis.jpg" style="position: absolute; width: 250px; height: auto; max-width: none; max-height: none; left: -3px; top: 0px;">
-                	</a>
-                    <div class="caption prod-caption">
-                        <h4><a href="detail.html">Gestippelde short met open kruis</a></h4>
-                        <p>Zwarte, schattige short met open kruis. De achterkant is transparant en versierd met stippen. Met kleine roze strikjes aan de voorkant en achterkant. Lief maar stout tegelijk!</p>
-                        <p>
-                        	</p><div class="btn-group">
-	                        	<a class="btn btn-default" href="#">&euro; 13.38</a>
-	                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-                        	</div>
-                        <p></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-sm-4 hero-feature text-center">
-                <div class="thumbnail">
-                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/gestippelde-short-met-open-kruis.jpg" style="position: absolute; width: 250px; height: auto; max-width: none; max-height: none; left: -3px; top: 0px;">
-                	</a>
-                    <div class="caption prod-caption">
-                        <h4><a href="detail.html">Gestippelde short met open kruis</a></h4>
-                        <p>Zwarte, schattige short met open kruis. De achterkant is transparant en versierd met stippen. Met kleine roze strikjes aan de voorkant en achterkant. Lief maar stout tegelijk!</p>
-                        <p>
-                        	</p><div class="btn-group">
-	                        	<a class="btn btn-default" href="#">&euro; 13.38</a>
-	                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-                        	</div>
-                        <p></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-sm-4 hero-feature text-center">
-                <div class="thumbnail">
-                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/gestippelde-short-met-open-kruis.jpg" style="position: absolute; width: 250px; height: auto; max-width: none; max-height: none; left: -3px; top: 0px;">
-                	</a>
-                    <div class="caption prod-caption">
-                        <h4><a href="detail.html">Gestippelde short met open kruis</a></h4>
-                        <p>Zwarte, schattige short met open kruis. De achterkant is transparant en versierd met stippen. Met kleine roze strikjes aan de voorkant en achterkant. Lief maar stout tegelijk!</p>
-                        <p>
-                        	</p><div class="btn-group">
-	                        	<a class="btn btn-default" href="#">&euro; 13.38</a>
-	                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-                        	</div>
-                        <p></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-sm-4 hero-feature text-center">
-                <div class="thumbnail">
-                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/gestippelde-short-met-open-kruis.jpg" style="position: absolute; width: 250px; height: auto; max-width: none; max-height: none; left: -3px; top: 0px;">
-                	</a>
-                    <div class="caption prod-caption">
-                        <h4><a href="detail.html">Gestippelde short met open kruis</a></h4>
-                        <p>Zwarte, schattige short met open kruis. De achterkant is transparant en versierd met stippen. Met kleine roze strikjes aan de voorkant en achterkant. Lief maar stout tegelijk!</p>
-                        <p>
-                        	</p><div class="btn-group">
-	                        	<a class="btn btn-default" href="#">&euro; 13.38</a>
-	                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-                        	</div>
-                        <p></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-sm-4 hero-feature text-center">
-                <div class="thumbnail">
-                	<a class="link-p" href="detail.html" style="overflow: hidden; position: relative;">
-                    	<img alt="" src="http://www.jouwsexshop.nl/images/sexartikelen/450/gestippelde-short-met-open-kruis.jpg" style="position: absolute; width: 250px; height: auto; max-width: none; max-height: none; left: -3px; top: 0px;">
-                	</a>
-                    <div class="caption prod-caption">
-                        <h4><a href="detail.html">Gestippelde short met open kruis</a></h4>
-                        <p>Zwarte, schattige short met open kruis. De achterkant is transparant en versierd met stippen. Met kleine roze strikjes aan de voorkant en achterkant. Lief maar stout tegelijk!</p>
-                        <p>
-                        	</p><div class="btn-group">
-	                        	<a class="btn btn-default" href="#">&euro; 13.38</a>
-	                        	<a class="btn btn-primary" href="#"><i class="fa fa-shopping-cart"></i> Kopen</a>
-                        	</div>
-                        <p></p>
-                    </div>
-                </div>
-            </div>
-			<div class="text-center">
-	        	<ul class="pagination catalogue-pagination">
-					<li class="disabled"><a>Eerste</a></li>
-					<li class="disabled"><a>Vorige</a></li>
-					<li class="active"><a href="#">1</a></li>
-					<li><a href="#">2</a></li>
-					<li><a href="#">3</a></li>
-					<li><a href="#">4</a></li>
-					<li><a href="#">Volgende</a></li>
-					<li><a href="#">Laatste</a></li>
-				</ul>
-			</div>
-    	</div>
-    	<!-- End Catalogue -->
+				<!-- Search Form -->
+        <div class="col-lg-5 col-md-5 col-sm-7 col-xs-12">
+        	<div class="well">
+            <form action="">
+              <div class="input-group">
+                <input type="text" placeholder="Zoek sexartikelen" class="form-control input-search">
+                <span class="input-group-btn">
+                	<button type="submit" class="btn btn-default no-border-left"><i class="fa fa-search"></i></button>
+                </span>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- End Search Form -->
 
+        <!-- Shopping Cart List -->
+        <div class="col-lg-3 col-md-4 col-sm-5">
+          <div class="well">
+            <div class="btn-group btn-group-cart">
+              <button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
+                <span class="pull-left"><i class="fa fa-shopping-cart icon-cart"></i></span>
+                <span class="pull-left">Winkel wagen: 2 artikel(en)</span>
+                <span class="pull-right"><i class="fa fa-caret-down"></i></span>
+              </button>
+              <ul role="menu" class="dropdown-menu cart-content">
+                <li>
+                  <a href="detail.html">
+                    <b>Simply Sinful Garter set Diva Queen Size 3XL/4XL</b>
+                    <span>x1 &euro;50.35</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="detail.html">
+                    <b>Horny U Schoolmeisjes kostuum Roze</b>
+                    <span>x1 &euro;50.55</span>
+                  </a>
+                </li>
+                <li class="divider"></li>
+                <li><a href="cart.html">Totaal: &euro;100.85</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <!-- End Shopping Cart List -->
+	    </div>
+	  </div>
+	</header>
 
-    </div>
-</div>
+	<nav role="navigation" class="navbar navbar-inverse">
+	  <div class="container">
+	    <div class="navbar-header">
+	      <button data-target=".navbar-ex1-collapse" data-toggle="collapse" class="navbar-toggle" type="button">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	      <!-- text logo on mobile view -->
+	      <a ui-sref="home" class="navbar-brand visible-xs">Mij sexshop Online Shop</a>
+	    </div>
+	    <div class="navbar-collapse navbar-ex1-collapse collapse in" style="height: auto;">
+	      <ul class="nav navbar-nav">
+	        <li><a ui-sref-active="active" ui-sref="home">Home</a></li>
+	        <li><a ui-sref-active="active" ui-sref="dildo">dildo's</a></li>
+	        <li><a ui-sref-active="active" ui-sref="diversen">diversen</a></li>
+	        <li><a ui-sref-active="active" ui-sref="kledingVoorHaar">kleding voor haar</a></li>
+	        <li><a ui-sref-active="active" ui-sref="kledingVoorHem">kleding voor hem</a></li>
+	        <li><a ui-sref-active="active" ui-sref="toysVoorDames">toys voor dames</a></li>
+	        <li><a ui-sref-active="active" ui-sref="drogisterij">drogisterij</a></li>
+	        <li><a ui-sref-active="active" ui-sref="vibrator">vibrator</a></li>
+	      </ul>
+	    </div>
+	  </div>
+	</nav>
 
-<footer>
-	<div class="container">
+	<div class="container main-container">
+		<div ui-view></div>
+	</div>
+
+	<footer>
+		<div class="container">
     	<div class="col-lg-3 col-md-3 col-sm-6">
     		<div class="column">
     			<h4>Nieuw in de winkel</h4>
 				<ul>
-					<li><a title="Pink glitter mini dress" href="/sexartikel/15999/pink-glitter-mini-dress.html">Pink glitter mini dress</a></li>
+					<li><a title="Pink glitter mini  ng-strict-didress" href="/sexartikel/15999/pink-glitter-mini-dress.html">Pink glitter mini dress</a></li>
 					<li><a title="Colt Stallion Tail - Ribbed" href="/sexartikel/15981/colt-stallion-tail-ribbed.html">Colt Stallion Tail - Ribbed</a></li>
 					<li><a title="Fleshlight Girls - Christy Mack Forbidden" href="/sexartikel/15979/fleshlight-girls-christy-mack-forbidden.html">Fleshlight Girls - Christy Mack Forbidden</a></li>
 					<li><a title="Fleshlight Girls - Jenna Jameson Lotus" href="/sexartikel/15978/fleshlight-girls-jenna-jameson-lotus.html">Fleshlight Girls - Jenna Jameson Lotus</a></li>
@@ -588,10 +275,11 @@
     <div class="navbar-inverse text-center copyright">
     	Copyright &copy; 2014 Mij sexshop All right reserved
     </div>
-</footer>
+	</footer>
 
-<a onclick="&euro;('body,html').animate({scrollTop:0},500); return false" class="back-top text-center" href="#top" style="display: inline;">
-	<i class="fa fa-angle-double-up"></i>
-</a>
+	<a scrollToTop class="back-top text-center" style="display: inline;">
+		<i class="fa fa-angle-double-up"></i>
+	</a>
+
 </body>
 </html>
